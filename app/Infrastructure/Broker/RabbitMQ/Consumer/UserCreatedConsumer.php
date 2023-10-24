@@ -27,6 +27,7 @@ class UserCreatedConsumer extends BaseConsumerAbstract
                 'class' => self::class,
                 'event' => BrokerEnum::USER_CREATED_EVENT->value,
                 'consumerTag' => $this->consumerTag,
+                'payload' => $body,
             ]);
         }
     }

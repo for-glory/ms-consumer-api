@@ -10,7 +10,7 @@ class UserController extends Controller
     {
         $users = User::search()->simplePaginate(
             $request->input('perPage'),
-            $request->input('pageName'),
+            $request->input('pageName', 'page'),
             $request->input('page')
         );
 
