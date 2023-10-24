@@ -1,0 +1,95 @@
+services:
+    ms-consumer-api:
+        build:
+            context: ./.docker/php/runtime/8.2
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP-1000}'
+        container_name: ms-consumer-api
+        image: laravel-php8.2/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '8002:80'
+        environment:
+            WWWUSER: '${WWWUSER:-1000}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - './:/var/www/html'
+        networks:
+            - database
+            - rabbitmq
+            - elasticsearch
+        depends_on:
+            - mysql
+            - rabbitmq
+            - elasticsearch
+    mysql:
+        image: 'mysql:8.0'
+        container_name: mysql
+        ports:
+            - '${DB_FORWARD_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - mysql:/var/lib/mysql
+            - ./.docker/mysql/create-database.sh:/docker-entrypoint-initdb.d/10-create-database.sh
+        networks:
+            - database
+        healthcheck:
+            test:
+                - CMD
+                - mysqladmin
+                - ping
+                - '-p${DB_PASSWORD}'
+            retries: 3
+            timeout: 5s
+    rabbitmq:
+        image: "rabbitmq:3-management"
+        container_name: rabbitmq
+        hostname: "rabbit"
+        ports:
+            - "15672:15672"
+            - "5672:5672"
+        labels:
+            NAME: "rabbitmq"
+        environment:
+            RABBITMQ_DEFAULT_USER: '${RABBITMQ_USER}'
+            RABBITMQ_DEFAULT_PASS: '${RABBITMQ_PASSWORD}'
+        volumes:
+            - rabbitmq:/var/lib/rabbitmq
+        networks:
+            - rabbitmq
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.14
+        container_name: elasticsearch
+        ports:
+            - "9200:9200"
+        environment:
+            discovery.type: single-node
+            ELASTIC_PASSWORD: '${ELASTIC_PASSWORD}'
+        networks:
+            - elasticsearch
+        volumes:
+            - elasticsearch:/usr/share/elasticsearch/data
+networks:
+    database:
+        driver: bridge
+    rabbitmq:
+        driver: bridge
+    elasticsearch:
+        driver: bridge
+volumes:
+    mysql:
+        driver: local
+    elasticsearch:
+        driver: local
+    rabbitmq:
+        driver: local
