@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\RabbitMQ;
 
 use App\Enums\BrokerEnum;
 use App\Infrastructure\Broker\RabbitMQ\Consumer\UserCreatedConsumer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class RabbitMQConsumeCommand extends Command
+class ConsumeUserCreatedCommand extends Command
 {
     protected string $eventName = BrokerEnum::USER_CREATED_EVENT->value;
 
