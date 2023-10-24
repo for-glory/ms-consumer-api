@@ -33,10 +33,10 @@ services:
         ports:
             - '${DB_FORWARD_PORT:-3306}:3306'
         environment:
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD:-password}'
             MYSQL_ROOT_HOST: '%'
-            MYSQL_USER: '${DB_USERNAME}'
-            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_USER: '${DB_USERNAME:-username}'
+            MYSQL_PASSWORD: '${DB_PASSWORD:-password}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 1
         volumes:
             - mysql:/var/lib/mysql
@@ -48,7 +48,7 @@ services:
                 - CMD
                 - mysqladmin
                 - ping
-                - '-p${DB_PASSWORD}'
+                - '-p${DB_PASSWORD:-password}'
             retries: 3
             timeout: 5s
     rabbitmq:
@@ -61,8 +61,8 @@ services:
         labels:
             NAME: "rabbitmq"
         environment:
-            RABBITMQ_DEFAULT_USER: '${RABBITMQ_USER}'
-            RABBITMQ_DEFAULT_PASS: '${RABBITMQ_PASSWORD}'
+            RABBITMQ_DEFAULT_USER: '${RABBITMQ_USER:-guest}'
+            RABBITMQ_DEFAULT_PASS: '${RABBITMQ_PASSWORD:-guest}'
         volumes:
             - rabbitmq:/var/lib/rabbitmq
         networks:
@@ -74,7 +74,7 @@ services:
             - "9200:9200"
         environment:
             discovery.type: single-node
-            ELASTIC_PASSWORD: '${ELASTIC_PASSWORD}'
+            ELASTIC_PASSWORD: '${ELASTIC_PASSWORD:-password}'
         networks:
             - elasticsearch
         volumes:
