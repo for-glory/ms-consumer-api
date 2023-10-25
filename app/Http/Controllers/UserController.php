@@ -9,17 +9,19 @@ class UserController extends Controller
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $users = User::search()
-            ->options([
-                'body' => [
-                    'sort' => [
-                        '_script' => [
-                            'type' => 'number',
-                            'script' => 'return Integer.parseInt(doc[\'id\'].value)',
-                            'order' => 'asc',
-                        ],
+            ->when($request->has('name'), function ($query) use ($request) {
+                $name = $request->input('name');
+
+                return $query->where('multi_match', [
+                    'query' => $name,
+                    'fields' => [
+                        'name',
+                        'email',
                     ],
-                ],
-            ])
+                    'fuzziness' => '7',
+                    'auto_generate_synonyms_phrase_query' => true,
+                ]);
+            })
             ->simplePaginate(
                 $request->input('perPage'),
                 $request->input('pageName', 'page'),
