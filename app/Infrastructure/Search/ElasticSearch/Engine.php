@@ -77,7 +77,6 @@ class Engine extends BaseEngine
     public function search(Builder $builder)
     {
         return $this->performSearch($builder, array_filter([
-            'numericFilters' => $this->filters($builder),
             'size' => $builder->limit,
         ]));
     }
@@ -95,7 +94,6 @@ class Engine extends BaseEngine
         $offset = $page - 1;
 
         return $this->performSearch($builder, [
-            'numericFilters' => $this->filters($builder),
             'size' => $perPage,
             'page' => $page,
             'from' => $offset * $perPage,
@@ -131,13 +129,7 @@ class Engine extends BaseEngine
     protected function filters(Builder $builder): array
     {
         $filters = collect($builder->wheres)->map(function ($value, $key) {
-            if (is_bool($value)) {
-                return sprintf('%s=%s', $key, $value ? 'true' : 'false');
-            }
-
-            return is_numeric($value)
-                ? sprintf('%s=%s', $key, $value)
-                : sprintf('%s="%s"', $key, $value);
+            return $value;
         });
 
         return $filters->merge(collect($builder->whereIns)->map(function ($values, $key) {
@@ -148,7 +140,7 @@ class Engine extends BaseEngine
             return collect($values)->map(function ($value) use ($key) {
                 return [$key => $value];
             })->all();
-        })->filter())->filter()->all();
+        })->values()->filter())->filter()->all();
     }
 
     /**

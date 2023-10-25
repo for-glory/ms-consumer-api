@@ -31,9 +31,7 @@ class SearchIndex
         $body = [];
         if (! empty($params)) {
             $body = [
-                'query' => [
-                    'match' => $params,
-                ],
+                'query' => $params,
             ];
         }
 
