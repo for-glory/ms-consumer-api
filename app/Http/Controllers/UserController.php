@@ -9,11 +9,11 @@ class UserController extends Controller
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $users = User::search()
-            ->when($request->has('name'), function ($query) use ($request) {
-                $name = $request->input('name');
+            ->when($request->has('filter'), function ($query) use ($request) {
+                $filter = $request->input('filter');
 
                 return $query->where('multi_match', [
-                    'query' => $name,
+                    'query' => $filter,
                     'fields' => [
                         'name',
                         'email',
