@@ -41,3 +41,6 @@ Best usage of this repo is with [ms-study](https://github.com/Haaragard/microser
 - [Laravel](https://laravel.com)
 - [RabbitMQ](https://www.rabbitmq.com/)
 - [RabbitMQ AMQP PHP](https://www.rabbitmq.com/tutorials/tutorial-one-php.html)
+- [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/elasticsearch-intro.html)
+    - [How-to on docker](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)
+    - [How-to with PHP](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/getting-started-php.html)
