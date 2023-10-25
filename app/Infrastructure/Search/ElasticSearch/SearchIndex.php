@@ -51,9 +51,11 @@ class SearchIndex
      * @throws ServerResponseException
      * @throws Exception
      */
-    public function createIndex(): void
+    public function createIndex(array $options = []): void
     {
-        $this->request(OperationEnum::INDEX_CREATE, ['index' => $this->indexName]);
+        $this->request(OperationEnum::INDEX_CREATE, array_merge($options, [
+            'index' => $this->indexName,
+        ]));
     }
 
     /**
@@ -158,23 +160,20 @@ class SearchIndex
      * @throws ServerResponseException
      * @throws Exception
      */
-    private function request(OperationEnum $operation, array $options = []): ?array
+    private function request(OperationEnum $operation, array $options = []): array
     {
         try {
-            return $this->client->{$operation->value}($options);
+            return $this->client->{$operation->value}($options) ?? [];
         } catch (ClientResponseException $exception) {
             $this->logResponseError($exception->getResponse());
-dd($exception, $options);
 
-            throw $exception;
+            return [];
         } catch (ServerResponseException $exception) {
             $this->logResponseError($exception->getResponse());
-dd($exception);
 
             throw $exception;
         } catch (Exception $exception) {
             Log::error($exception->getMessage(), $exception->getTrace());
-dd($exception);
 
             throw $exception;
         }

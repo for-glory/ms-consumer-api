@@ -78,7 +78,7 @@ class Engine extends BaseEngine
     {
         return $this->performSearch($builder, array_filter([
             'numericFilters' => $this->filters($builder),
-            'hitsPerPage' => $builder->limit,
+            'size' => $builder->limit,
         ]));
     }
 
@@ -92,10 +92,13 @@ class Engine extends BaseEngine
      */
     public function paginate(Builder $builder, $perPage, $page)
     {
+        $offset = $page - 1;
+
         return $this->performSearch($builder, [
             'numericFilters' => $this->filters($builder),
-            'hitsPerPage' => $perPage,
-            'page' => $page - 1,
+            'size' => $perPage,
+            'page' => $page,
+            'from' => $offset * $perPage,
         ]);
     }
 
@@ -108,11 +111,7 @@ class Engine extends BaseEngine
             $builder->index ?: $builder->model->searchableAs()
         );
 
-        $options = array_merge(
-            $builder->options,
-            $options,
-            $this->filterPaginate($builder)
-        );
+        $options = array_merge($builder->options, $options);
 
         if ($builder->callback) {
             return call_user_func(
@@ -152,16 +151,6 @@ class Engine extends BaseEngine
         })->filter())->filter()->all();
     }
 
-    protected function filterPaginate(Builder $builder): array
-    {
-        $options = $builder->options;
-
-        return [
-            'page' => $options['page'] ?? 1,
-            'hitsPerPage' => $options['hitsPerPage'] ?? $builder->limit,
-        ];
-    }
-
     /**
      * Pluck and return the primary keys of the given results.
      *
@@ -170,7 +159,7 @@ class Engine extends BaseEngine
      */
     public function mapIds($results)
     {
-        return collect($results['hits']['hits'])->pluck('id')->values();
+        return collect($results['hits']['hits'] ?? [])->pluck('id')->values();
     }
 
     /**
@@ -183,7 +172,7 @@ class Engine extends BaseEngine
      */
     public function map(Builder $builder, $results, $model)
     {
-        if (count($results['hits']['hits']) === 0) {
+        if (count($results['hits']['hits'] ?? []) === 0) {
             return $model->newCollection();
         }
 
@@ -210,7 +199,7 @@ class Engine extends BaseEngine
      */
     public function lazyMap(Builder $builder, $results, $model)
     {
-        if (count($results['hits']) === 0) {
+        if (count($results['hits']['hits'] ?? []) === 0) {
             return LazyCollection::make($model->newCollection());
         }
 
@@ -234,7 +223,7 @@ class Engine extends BaseEngine
      */
     public function getTotalCount($results)
     {
-        return $results['took'];
+        return count($results['hits']['hits'] ?? []);
     }
 
     /**
@@ -261,7 +250,15 @@ class Engine extends BaseEngine
     {
         $index = $this->elastic->initIndex($name);
 
-        $index->createIndex();
+        $index->createIndex([
+            'mappings' => [
+                'some_type' => [
+                    '_id' => [
+                        'index' => 'integer',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     /**

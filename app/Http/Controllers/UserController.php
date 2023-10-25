@@ -8,11 +8,23 @@ class UserController extends Controller
 {
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
-        $users = User::search()->simplePaginate(
-            $request->input('perPage'),
-            $request->input('pageName', 'page'),
-            $request->input('page')
-        );
+        $users = User::search()
+            ->options([
+                'body' => [
+                    'sort' => [
+                        '_script' => [
+                            'type' => 'number',
+                            'script' => 'return Integer.parseInt(doc[\'id\'].value)',
+                            'order' => 'asc',
+                        ],
+                    ],
+                ],
+            ])
+            ->simplePaginate(
+                $request->input('perPage'),
+                $request->input('pageName', 'page'),
+                $request->input('page')
+            );
 
         return response()->json($users);
     }
