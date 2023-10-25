@@ -28,6 +28,12 @@ Best usage of this repo is with [ms-study](https://github.com/Haaragard/microser
     docker compose up -d
     ```
 
+## Rodas comandos para consumo RabbitMQ
+
+- `php artisan rabbitmq:consume:user-created`
+- `php artisan rabbitmq:consume:user-updated`
+- `php artisan rabbitmq:consume:user-deleted`
+
 **Necessário criar chave, migrate no banco & composer_install**
 
 ## Packages
