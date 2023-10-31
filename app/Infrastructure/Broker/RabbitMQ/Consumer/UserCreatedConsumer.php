@@ -21,6 +21,7 @@ class UserCreatedConsumer extends BaseConsumerAbstract
 
     public function fire(array $body): void
     {
+        var_dump($body['id']);
         try {
             $user = new User($body);
             $user->save();
