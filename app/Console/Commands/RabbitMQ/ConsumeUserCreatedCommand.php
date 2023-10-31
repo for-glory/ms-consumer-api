@@ -32,10 +32,16 @@ class ConsumeUserCreatedCommand extends Command
     {
         $this->info("Starting the {$this->eventName} queue consume");
 
+        $start = microtime(true);
         try {
             $consumer->consume();
         } catch (\Throwable $exception) {
             Log::error($exception->getMessage());
         }
+        $end = microtime(true);
+
+        $diff = $end - $start;
+        $diffInMs = round($diff * 1000,2);
+        $this->info("{$diffInMs} ms");
     }
 }

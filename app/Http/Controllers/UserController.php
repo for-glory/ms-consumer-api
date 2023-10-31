@@ -1,12 +1,15 @@
 <?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
+use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
-    public function index(Request $request): \Illuminate\Http\JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $users = User::search()
             ->when($request->has('filter'), function ($query) use ($request) {
@@ -29,5 +32,12 @@ class UserController extends Controller
             );
 
         return response()->json($users);
+    }
+
+    public function store(StoreUserRequest $request): JsonResponse
+    {
+        User::create($request->validated());
+
+        return response()->json([], Response::HTTP_CREATED);
     }
 }

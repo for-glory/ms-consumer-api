@@ -33,5 +33,6 @@ class UserCreatedConsumer extends BaseConsumerAbstract
                 'payload' => $body,
             ]);
         }
+        if ($user->id === 1000) $this->channel->stopConsume();
     }
 }
