@@ -4,7 +4,7 @@ namespace App\Enums;
 
 enum BrokerEnum: string
 {
-    case USER_CREATED_EVENT = 'user_created_event';
-    case USER_UPDATED_EVENT = 'user_updated_event';
-    case USER_DELETED_EVENT = 'user_deleted_event';
+    case USER_CREATED_EVENT = 'user.created.event';
+    case USER_UPDATED_EVENT = 'user.updated.event';
+    case USER_DELETED_EVENT = 'user.deleted.event';
 }

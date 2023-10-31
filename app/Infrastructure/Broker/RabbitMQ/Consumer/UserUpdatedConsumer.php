@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 
 class UserUpdatedConsumer extends BaseConsumerAbstract
 {
+    protected string $exchangePrefix = 'ms_ad';
     protected string $queue = BrokerEnum::USER_UPDATED_EVENT->value;
+    protected string $routingKey = BrokerEnum::USER_UPDATED_EVENT->value;
     protected ?string $consumerTag = BrokerEnum::USER_UPDATED_EVENT->value;
 
     public function __construct()

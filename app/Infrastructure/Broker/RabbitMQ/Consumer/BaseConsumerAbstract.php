@@ -13,7 +13,15 @@ abstract class BaseConsumerAbstract
     private string|null $prefixConsumerTag = 'ms-consumer-api';
 
     // -- Overridable attributes --
+
+    // Exchange
+    protected string $exchangePrefix = 'ms_consumer';
+    protected string $exchangeName = 'default';
+    protected string $exchangeType = 'topic';
+
+    // Queue
     protected string $queue = 'default';
+    protected string $routingKey = '';
     protected string|null $consumerTag = '';
     protected bool|null $noLocal = false;
     protected bool|null $noAck = false;
@@ -22,11 +30,20 @@ abstract class BaseConsumerAbstract
     protected int|null $ticket = null;
     protected \PhpAmqpLib\Wire\AMQPTable|array|null $arguments = [];
 
+    // Messages
+    protected bool $reQueueOnFail = false;
+
     public function __construct()
     {
         $this->declareBroker();
         $this->startChannel();
         $this->declareQueue();
+        $this->configChannel();
+    }
+
+    protected function getExchangeName(): string
+    {
+        return sprintf('%s.%s', $this->exchangePrefix, $this->exchangeName);
     }
 
     private function declareBroker(): void
@@ -45,9 +62,32 @@ abstract class BaseConsumerAbstract
         $this->channel = $this->broker->getChannel();
     }
 
+    private function configChannel(): void
+    {
+        $this->channel->exchange_declare(
+            $this->getExchangeName(),
+            $this->exchangeType,
+            false,
+            true,
+            false
+        );
+
+        $this->channel->queue_bind(
+            $this->queue,
+            $this->getExchangeName(),
+            $this->routingKey
+        );
+    }
+
     private function declareQueue(): void
     {
-        $this->channel->queue_declare($this->queue);
+        $this->channel->queue_declare(
+            $this->queue,
+            false,
+            true,
+            false,
+            false
+        );
     }
 
     private function getConsumeTag(): string
@@ -81,11 +121,20 @@ abstract class BaseConsumerAbstract
         }
     }
 
+    /**
+     * @throws \Throwable
+     */
     private function consumeCallback(AMQPMessage $message): void
     {
-        $this->fire($this->getMessageBody($message) ?? []);
+        try {
+            $this->fire($this->getMessageBody($message) ?? []);
 
-        $message->ack();
+            $message->ack();
+        } catch (\Throwable $th) {
+            $message->nack($this->reQueueOnFail);
+
+            throw $th;
+        }
     }
 
     /**
