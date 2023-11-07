@@ -21,7 +21,7 @@ class UserCreatedConsumer extends BaseConsumerAbstract
 
     public function fire(array $body): void
     {
-        var_dump($body['id']);
+        printf('Consumed user with id %s', $body['id']);
         try {
             $user = new User($body);
             $user->save();
@@ -33,6 +33,5 @@ class UserCreatedConsumer extends BaseConsumerAbstract
                 'payload' => $body,
             ]);
         }
-        if ($user->id === 1000) $this->channel->stopConsume();
     }
 }
