@@ -12,7 +12,7 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $users = User::search()
-            ->when($request->has('filter'), function ($query) use ($request) {
+            ->when($request->get('filter'), function ($query) use ($request) {
                 $filter = $request->input('filter');
 
                 return $query->where('multi_match', [
