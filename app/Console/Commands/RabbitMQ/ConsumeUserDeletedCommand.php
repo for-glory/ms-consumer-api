@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConsumeUserDeletedCommand extends Command
 {
-    protected string $eventName = BrokerEnum::USER_DELETED_EVENT->value;
+    protected string $queueName = BrokerEnum::USER_DELETED_QUEUE->value;
 
     /**
      * The name and signature of the console command.
@@ -30,7 +30,7 @@ class ConsumeUserDeletedCommand extends Command
      */
     public function handle(UserDeletedConsumer $consumer)
     {
-        $this->info("Starting the {$this->eventName} queue consume");
+        $this->info("Starting the {$this->queueName} queue consume");
 
         try {
             $consumer->consume();

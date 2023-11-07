@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConsumeUserCreatedCommand extends Command
 {
-    protected string $eventName = BrokerEnum::USER_CREATED_EVENT->value;
+    protected string $queueName = BrokerEnum::USER_CREATED_QUEUE->value;
 
     /**
      * The name and signature of the console command.
@@ -30,18 +30,12 @@ class ConsumeUserCreatedCommand extends Command
      */
     public function handle(UserCreatedConsumer $consumer)
     {
-        $this->info("Starting the {$this->eventName} queue consume");
+        $this->info("Starting the {$this->queueName} queue consume");
 
-        $start = microtime(true);
         try {
             $consumer->consume();
         } catch (\Throwable $exception) {
             Log::error($exception->getMessage());
         }
-        $end = microtime(true);
-
-        $diff = $end - $start;
-        $diffInMs = round($diff * 1000,2);
-        $this->info("{$diffInMs} ms");
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConsumeUserUpdatedCommand extends Command
 {
-    protected string $eventName = BrokerEnum::USER_UPDATED_EVENT->value;
+    protected string $queueName = BrokerEnum::USER_UPDATED_QUEUE->value;
 
     /**
      * The name and signature of the console command.
@@ -30,7 +30,7 @@ class ConsumeUserUpdatedCommand extends Command
      */
     public function handle(UserUpdatedConsumer $consumer)
     {
-        $this->info("Starting the {$this->eventName} queue consume");
+        $this->info("Starting the {$this->queueName} queue consume");
 
         try {
             $consumer->consume();
