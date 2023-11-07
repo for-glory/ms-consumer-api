@@ -31,6 +31,8 @@ class UserUpdatedConsumer extends BaseConsumerAbstract
 
             $user->fill($body);
             $user->save();
+
+            echo "[{$this->queue}] - Updated user with id {$body['id']}" . PHP_EOL;
         } catch (\Throwable $th) {
             Log::error('Could not update user based on event', [
                 'class' => self::class,

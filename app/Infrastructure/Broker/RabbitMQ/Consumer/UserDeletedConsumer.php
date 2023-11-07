@@ -32,6 +32,8 @@ class UserDeletedConsumer extends BaseConsumerAbstract
             }
 
             $user->delete();
+
+            echo "[{$this->queue}] - Deleted user with id {$body['id']}" . PHP_EOL;
         } catch (\Throwable $th) {
             Log::error('Could not create user based on event', [
                 'class' => self::class,

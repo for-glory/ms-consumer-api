@@ -21,10 +21,11 @@ class UserCreatedConsumer extends BaseConsumerAbstract
 
     public function fire(array $body): void
     {
-        printf('Consumed user with id %s', $body['id']);
         try {
             $user = new User($body);
             $user->save();
+
+            echo "[{$this->queue}] - Stored user with id {$body['id']}" . PHP_EOL;
         } catch (\Throwable $th) {
             Log::error('Could not create user based on event', [
                 'class' => self::class,
